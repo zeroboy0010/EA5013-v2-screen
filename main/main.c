@@ -22,7 +22,7 @@
 #include "clock_config.h"
 
 // External declaration for simson image
-LV_IMG_DECLARE(simson);
+// LV_IMG_DECLARE(simson);
 
 static const char *TAG = "digital_clock";
 static const char *LOG_SPIFFS = "spiffs";
