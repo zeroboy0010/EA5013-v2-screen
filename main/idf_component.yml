@@ -1,0 +1,7 @@
+## IDF Component Manager Manifest File
+dependencies:
+  ## Required IDF version
+  idf:
+    version: '>=4.1.0'
+  ## Required ESP Modem version and ESP Modbus version
+  lvgl/lvgl: ==8.4.0
