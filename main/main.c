@@ -7,7 +7,7 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "esp_system.h"
-// #include "esp_spi_flash.h"
+
 #include "nvs_flash.h"
 
 #include "lvgl.h"
@@ -15,11 +15,11 @@
 #include "lv_port_indev.h"
 // #include "lv_port_fs.h"
 #include "lv_demos.h"
-// #include "ui.h"
+#include "ui.h"
 static const char *TAG = "https://www.eya-display.com/";
 void lvgl_driver_init() // 初始化液晶驱动
 {
-    ESP_ERROR_CHECK(bsp_i2c_init(I2C_NUM_0, 400000));
+    ESP_ERROR_CHECK(bsp_i2c_init(I2C_NUM_0, 1000000));
     lv_init();
     lv_port_disp_init();
     lv_port_indev_init();
@@ -83,9 +83,9 @@ void app_main(void)
     Touch_IO_RST();
     lvgl_driver_init();      
     ESP_LOGI(TAG, "init ok");
-    //ui_init();
+    // ui_init();
     // lv_demo_music();
-    //lv_demo_widgets();
-    lv_demo_benchmark();
+    lv_demo_widgets();
+    // lv_demo_benchmark();
     xTaskCreate(lv_tick_task, "lv_tick_task", 4096, NULL, 1, NULL);
 }

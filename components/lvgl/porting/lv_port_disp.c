@@ -13,6 +13,7 @@
 #include "../../lvgl.h"
 
 #define CONFIG_EXAMPLE_AVOID_TEAR_EFFECT_WITH_SEM 1
+#define CONFIG_EXAMPLE_DOUBLE_FB 0
 
 /*********************
  *      DEFINES
@@ -206,7 +207,7 @@ void lv_port_disp_init(void)
     lv_disp_draw_buf_init(&disp_buf, buf1, buf2, LCD_WIDTH * LCD_HEIGHT);
 #else
     ESP_LOGI(TAG, "Allocate separate LVGL draw buffers from PSRAM");
-    uint16_t fact = 120;
+    uint16_t fact = 700;    // 700 for smooth
     buf1 = heap_caps_malloc(LCD_WIDTH * fact * sizeof(lv_color_t), MALLOC_CAP_SPIRAM); // MALLOC_CAP_SPIRAM
     if (!buf1) {
         ESP_LOGE(TAG, "Failed to allocate LVGL draw buffer 1");
