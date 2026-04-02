@@ -239,6 +239,10 @@ void lv_port_disp_init(void)
 
     disp_drv.user_data = panel_handle;
 
+    // Enable software rotation for landscape mode (90 degrees)
+    disp_drv.sw_rotate = 1;
+    disp_drv.rotated = LV_DISP_ROT_270;
+
 #if CONFIG_EXAMPLE_DOUBLE_FB
     disp_drv.full_refresh = true; // the full_refresh mode can maintain the synchronization between the two frame buffers
 #endif

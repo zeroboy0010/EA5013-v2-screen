@@ -1,4 +1,3 @@
-
 // https://www.eya-display.com/
 
 #include <stdio.h>
@@ -15,7 +14,13 @@
 #include "lv_port_indev.h"
 // #include "lv_port_fs.h"
 #include "lv_demos.h"
-#include "ui.h"
+
+#include "clock_screen.h"
+#include "clock_config.h"
+#include "wifi_config.h"
+#include "time_sync.h"
+#include "gold_price.h"
+
 static const char *TAG = "https://www.eya-display.com/";
 void lvgl_driver_init() // 初始化液晶驱动
 {
@@ -78,14 +83,65 @@ void Touch_IO_RST(void)
 #endif
 
 }
+
+// Clock update task
+void clock_update_task(void *arg)
+{
+    while (1) {
+        clock_screen_update();
+        vTaskDelay(pdMS_TO_TICKS(CLOCK_UPDATE_INTERVAL_MS));
+    }
+}
+
+// Main LVGL task
+void lvgl_task(void *arg)
+{
+    // Initialize touch and hardware
+    Touch_IO_RST();
+    lvgl_driver_init();
+    
+    ESP_LOGI(TAG, "LVGL initialized");
+    
+    // Create clock screen
+    clock_screen_load();
+    
+    // Create clock update task
+    xTaskCreate(clock_update_task, "clock_update", 4096, NULL, 5, NULL);
+    
+    // Create LVGL tick task
+    xTaskCreate(lv_tick_task, "lv_tick_task", 4096, NULL, 1, NULL);
+    
+    // Main LVGL loop
+    while (1) {
+        lv_task_handler();
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+}
+
 void app_main(void)
 {
-    Touch_IO_RST();
-    lvgl_driver_init();      
-    ESP_LOGI(TAG, "init ok");
-    // ui_init();
-    // lv_demo_music();
-    lv_demo_widgets();
-    // lv_demo_benchmark();
-    xTaskCreate(lv_tick_task, "lv_tick_task", 4096, NULL, 1, NULL);
+    // Initialize NVS
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(ret);
+    
+    // Initialize WiFi
+    wifi_init();
+    
+    // Initialize and synchronize time
+    time_sync_init();
+    
+    // Initialize gold price fetcher
+    gold_price_init();
+    
+    // Start LVGL task
+    xTaskCreate(lvgl_task, "lvgl_task", 8192, NULL, 5, NULL);
+    
+    // Start gold price update task
+    gold_price_start_task();
+    
+    ESP_LOGI(TAG, "Clock application started");
 }
